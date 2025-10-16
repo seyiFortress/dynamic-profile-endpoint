@@ -1,0 +1,25 @@
+{
+  "name": "dynamic_profile_endpoint",
+  "private": true,
+  "version": "1.0.0",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "json-server": "json-server --watch data/db.json --port 4001"
+  },
+  "keywords": [],
+  "author": "oluwaseyi fortress",
+  "license": "ISC",
+  "description": "building a simple RESTful API endpoint that returns my profile information along with a dynamic cat fact fetched from an external API.",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.2",
+    "nodemon": "^3.1.10"
+  },
+  "type": "module"
+}
