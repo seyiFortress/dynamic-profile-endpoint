@@ -5,8 +5,10 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
+    "start:dev": "nodemon server/index.js",
     "dev": "nodemon server/index.js",
-    "json-server": "json-server --watch data/db.json --port 4001"
+    "install:prod": "npm install --omit=dev",
+    "start:prod": "npm run install:prod && node server/index.js"
   },
   "keywords": [],
   "author": "oluwaseyi fortress",
