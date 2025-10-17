@@ -7,20 +7,24 @@ const userProfile = {
 };
 
 /*
- ** Providing my profile with a cat qoute. **
+ ** Providing my profile with a dynamic cat qoute on every request. **
  */
 const getUserProfile = async (_, response) => {
   const timestamp = new Date().toISOString();
   try {
     const extResponse = await axios.get("https://catfact.ninja/fact", {
-      timeout: 5000,
-    }); // after 3sec it will stop trying
+      timeout: 5000, // abort request after 5s (no automatic retry)
+    });
 
-    if (!extResponse) {
-      response.status(404).json({
+    if (
+      extResponse.status !== 200 ||
+      !extResponse.data ||
+      !extResponse.data.fact
+    ) {
+      return response.status(502).json({
         status: "error",
         message:
-          "Quote service is currently unavailable. Please try again later.",
+          "Quote service is returned an unexpected response. Pls try again.",
         timestamp: timestamp,
         user: {
           email: userProfile.email,
@@ -43,12 +47,31 @@ const getUserProfile = async (_, response) => {
       });
     }
   } catch (error) {
-    return response
-      .status(500)
-      .json({
-        message: `Internal server error, ${error.message}`,
-        timestamp: timestamp,
-      });
+    // Axios-specific handling
+    if (axios.isAxiosError(error)) {
+      if (error.code === "ECONNABORTED") {
+        return response.status(504).json({
+          status: "error",
+          message: "Quote service timed out.",
+          timestamp,
+        });
+      }
+      if (error.response) {
+        return response.status(502).json({
+          status: "error",
+          message: "Quote service error.",
+          upstreamStatus: error.response.status,
+          timestamp,
+        });
+      }
+    }
+
+    // Fallback for unexpected errors
+    return response.status(500).json({
+      status: "error",
+      message: `Internal server error: ${error.message}`,
+      timestamp,
+    });
   }
 };
 
